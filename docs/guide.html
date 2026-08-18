@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>
+  try {
+    var storedPalette = localStorage.getItem("palette");
+    if (storedPalette) document.documentElement.dataset.palette = storedPalette;
+  } catch (e) {}
+</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Documentation — dmarcRadar</title>
+<meta name="description" content="dmarcRadar documentation — quick start, stack, container images, and data model, generated from the project README." />
+<link rel="canonical" href="https://dmarcradar.cloudlative.com/guide.html" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="assets/site.css" />
+</head>
+<body>
+  <header class="docheader">
+    <a class="brand" href="index.html">
+      <img src="assets/logo-icon-animated.svg" alt="" />
+      dmarcRadar
+    </a>
+    <nav>
+      <div class="theme-picker" role="group" aria-label="Color theme" style="margin-top: 0;">
+        <button class="swatch" data-palette-choice="signal">
+          <span class="dot" style="background-image:linear-gradient(135deg,#2a86e0,#17a878)"></span>Signal
+        </button>
+        <button class="swatch" data-palette-choice="ember">
+          <span class="dot" style="background-image:linear-gradient(135deg,#d9622b,#d9a12b)"></span>Ember
+        </button>
+        <button class="swatch" data-palette-choice="slate">
+          <span class="dot" style="background-image:linear-gradient(135deg,#4f46e5,#6d28d9)"></span>Slate
+        </button>
+      </div>
+      <a href="https://github.com/cloudlative/dmarcRadar">GitHub</a>
+    </nav>
+  </header>
+
+  <div class="wrap">
+    <div class="prose">
+<h2 id="quick-start-docker">Quick start (Docker)</h2>
+<p>The fastest way to get a running instance — no local Node/Postgres install required.</p>
+<pre><code class="language-bash">git clone https://github.com/cloudlative/dmarcRadar.git
+cd dmarcRadar
+cp .env.example .env   # fill in NEXTAUTH_SECRET / MAILBOX_SECRET, e.g. `openssl rand -hex 32`
+
+docker compose up -d
+docker compose exec app npx prisma migrate deploy
+docker compose exec app npm run seed
+</code></pre>
+<p>Open <strong><a href="http://localhost:3000">http://localhost:3000</a></strong> and sign in with the seeded admin credentials from <code>.env</code>
+(<code>SEED_ADMIN_EMAIL</code> / <code>SEED_ADMIN_PASSWORD</code>). This pulls the published
+<code>ghcr.io/cloudlative/dmarcradar:latest</code> image for both the app and the ingestion worker — see
+<a href="#container-images">Container images</a> below for what else it tags, and
+<a href="#docker-compose-full-stack">Docker Compose (full stack)</a> for building from local source instead.</p>
+<h2 id="stack">Stack</h2>
+<ul>
+<li>Next.js 14 (App Router) + TypeScript, Tailwind CSS</li>
+<li>PostgreSQL + Prisma</li>
+<li>NextAuth (credentials, bcrypt, JWT + role claim)</li>
+<li>Recharts for donut charts</li>
+<li><code>imapflow</code> + <code>mailparser</code> for IMAP ingestion, run from a standalone worker process</li>
+<li>Zod validation, pino logging, Vitest for parser/stats unit tests</li>
+</ul>
+<h2 id="local-development">Local development</h2>
+<ol>
+<li>Copy <code>.env.example</code> to <code>.env</code> and fill in <code>NEXTAUTH_SECRET</code> / <code>MAILBOX_SECRET</code>
+(<code>openssl rand -hex 32</code> for both). <code>POSTGRES_USER</code>/<code>POSTGRES_PASSWORD</code>/<code>POSTGRES_DB</code> and
+<code>DATABASE_URL</code> can be left as-is for local use — see the comment above them in
+<code>.env.example</code> if you change the DB credentials, since both need to stay in sync.</li>
+<li>Start Postgres: <code>docker compose up -d postgres</code></li>
+<li>Install deps: <code>npm install</code></li>
+<li>Run migrations: <code>npm run prisma:migrate</code></li>
+<li>Seed the first admin user: <code>npm run seed</code></li>
+<li>Start the app: <code>npm run dev</code></li>
+<li>In a separate terminal, start the ingestion worker (only needed to poll IMAP mailboxes):
+<code>npm run worker</code></li>
+</ol>
+<p>Sign in with the seeded admin credentials from <code>.env</code> (<code>SEED_ADMIN_EMAIL</code> / <code>SEED_ADMIN_PASSWORD</code>).</p>
+<p>All secrets — Postgres credentials, NextAuth secret, the mailbox-password encryption key, the
+seed admin&#39;s credentials — live only in <code>.env</code> (gitignored). Nothing is hardcoded in
+<code>docker-compose.yml</code>, the Dockerfile, or source: the <code>postgres</code> service reads its own
+credentials from <code>.env</code> via <code>env_file</code>, and the <code>app</code>/<code>worker</code> services derive their
+containerized <code>DATABASE_URL</code> from those same <code>POSTGRES_*</code> values (pointed at the <code>postgres</code>
+service instead of <code>localhost</code> — see the comment in <code>docker-compose.yml</code>), so there&#39;s one
+source of truth for the DB password rather than two copies that can drift out of sync.</p>
+<h2 id="landing-page-github-pages">Landing page (GitHub Pages)</h2>
+<p>A static landing page lives in <a href="https://github.com/cloudlative/dmarcRadar/tree/main/docs"><code>docs/</code></a> and deploys automatically to GitHub Pages via
+<a href="https://github.com/cloudlative/dmarcRadar/blob/main/.github/workflows/pages.yml"><code>.github/workflows/pages.yml</code></a> on every push to <code>main</code> that
+touches <code>docs/</code>, <code>README.md</code>, or the generator script. Published at
+<strong><a href="https://dmarcradar.cloudlative.com">https://dmarcradar.cloudlative.com</a></strong> (custom domain, HTTPS enforced) — the underlying
+<code>cloudlative.github.io/dmarcRadar/</code> URL still resolves too, but the custom domain is canonical.
+<a href="https://github.com/cloudlative/dmarcRadar/blob/main/docs/CNAME"><code>docs/CNAME</code></a> records the domain so it&#39;s tracked in version control alongside the
+repo&#39;s <strong>Settings → Pages → Custom domain</strong> setting.</p>
+<p><code>docs/index.html</code> is the hand-authored landing page; <code>docs/guide.html</code> is this README rendered
+to HTML by <a href="https://github.com/cloudlative/dmarcRadar/blob/main/scripts/generate-docs.mjs"><code>scripts/generate-docs.mjs</code></a>, styled with the same
+theme/palette system (<code>docs/assets/site.css</code>) so it matches the rest of the site. The Pages
+workflow regenerates it on every deploy, so it&#39;s always current — to preview a README change
+locally before pushing, run:</p>
+<pre><code class="language-bash">npm run docs:generate
+</code></pre>
+<h2 id="container-images">Container images</h2>
+<p>Every push to <code>main</code> builds and publishes one image to GitHub Container Registry via
+<a href="https://github.com/cloudlative/dmarcRadar/blob/main/.github/workflows/docker-build.yml"><code>.github/workflows/docker-build.yml</code></a>:</p>
+<ul>
+<li><code>ghcr.io/cloudlative/dmarcradar:latest</code> — always the most recent <code>main</code> build</li>
+<li><code>ghcr.io/cloudlative/dmarcradar:&lt;short-sha&gt;</code> — every build, pinned to its commit</li>
+<li><code>ghcr.io/cloudlative/dmarcradar:vX.Y.Z</code> — semver-tagged builds from version tags</li>
+</ul>
+<p>The same image serves both roles in <code>docker-compose.yml</code>, which references it via <code>image:</code>
+(pulled for <code>docker compose up</code>) — the <code>app</code> service runs it with the default command
+(<code>npm start</code>); the <code>worker</code> service runs the identical image with its command overridden to
+<code>npx tsx worker/poller.ts</code>. One image, one build, two roles.</p>
+<p><strong>One-time setup</strong>: GitHub Container Registry packages inherit their parent repo&#39;s visibility
+<em>at the time they&#39;re first published</em>, independent of the repo&#39;s visibility afterwards. The
+<code>GITHUB_TOKEN</code> the workflow runs with cannot change a package&#39;s visibility — that requires
+either the web UI or a personal access token with package scopes:</p>
+<pre><code class="language-bash"># Requires a token with read:packages/write:packages/delete:packages scopes:
+#   gh auth refresh -h github.com -s read:packages,write:packages,delete:packages
+gh api -X PATCH /orgs/cloudlative/packages/container/dmarcradar/visibility -f visibility=public
+</code></pre>
+<p>Or via the UI: the repo&#39;s <strong>Packages</strong> sidebar → package → <strong>Package settings</strong> → <strong>Change visibility</strong> → <strong>Public</strong>.
+This only needs to be done once — it persists across future builds.</p>
+<h2 id="docker-compose-full-stack">Docker Compose (full stack)</h2>
+<pre><code class="language-bash">docker compose up -d
+docker compose exec app npx prisma migrate deploy
+docker compose exec app npm run seed
+</code></pre>
+<p>This pulls <code>ghcr.io/cloudlative/dmarcradar:latest</code> for the <code>app</code> and <code>worker</code> services. To
+build from local source instead (e.g. testing an unpushed change), use <code>docker compose up -d --build</code>.</p>
+<p>This starts Postgres, the Next.js app, and the ingestion worker together.</p>
+<h2 id="tests">Tests</h2>
+<pre><code class="language-bash">npm run test
+</code></pre>
+<p>Covers the DMARC XML/gzip/zip parser and the dashboard stats aggregation logic.</p>
+<h2 id="roles">Roles</h2>
+<ul>
+<li><strong>ADMIN</strong> — full access: upload reports, manage domains, configure mailbox ingestion,
+manage users.</li>
+<li><strong>VIEWER</strong> — read-only: dashboard and report browsing only.</li>
+</ul>
+<h2 id="data-model">Data model</h2>
+<p>See <code>prisma/schema.prisma</code>. Reports are deduped on <code>(reportId, orgName, domainId)</code>, so
+re-polling the same mailbox or re-uploading the same file is a no-op.</p>
+<h2 id="branding">Branding</h2>
+<p>Logo source and rasterized assets live in <a href="https://github.com/cloudlative/dmarcRadar/tree/main/branding"><code>branding/</code></a>:</p>
+<ul>
+<li><code>logo-icon.svg</code> — master square mark (used for <code>src/app/icon.svg</code>, the in-app <code>Logo</code>
+component, and favicons), rasterized to <code>logo-icon-{16,32,48,64,128,192,256,512}.png</code></li>
+<li><code>logo-icon-animated.svg</code> — same mark with the radar sweep animated via SMIL (<code>&lt;animateTransform&gt;</code>)
+instead of CSS, so it keeps spinning when embedded standalone (e.g. this README) where the
+app&#39;s stylesheet isn&#39;t loaded. Used at the top of this file.</li>
+<li><code>logo-wordmark-{light,dark}.svg</code> — icon + wordmark lockup for light/dark backgrounds,
+rasterized at 1x/2x/3x for use in docs, social previews, or a repo card</li>
+</ul>
+<p>Regenerate the PNGs after editing an SVG source with:</p>
+<pre><code class="language-bash">npm install --no-save sharp
+node scripts/generate-logo-assets.mjs
+</code></pre>
+<h2 id="author">Author</h2>
+<p>Built by <a href="https://pk.linkedin.com/in/aasifrafiq">Muhammad Asif</a>.</p>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      <a href="https://github.com/cloudlative/dmarcRadar">github.com/cloudlative/dmarcRadar</a>
+      · <a href="index.html">dmarcRadar</a>
+    </p>
+    <p><em>Generated from the project README — run `npm run docs:generate` to refresh after editing it.</em></p>
+  </footer>
+
+  <script>
+    (function () {
+      var swatches = document.querySelectorAll("[data-palette-choice]");
+      var current = document.documentElement.dataset.palette || "signal";
+
+      function markActive() {
+        swatches.forEach(function (btn) {
+          btn.dataset.active = String(btn.dataset.paletteChoice === current);
+        });
+      }
+
+      swatches.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          current = btn.dataset.paletteChoice;
+          if (current === "signal") {
+            delete document.documentElement.dataset.palette;
+            try { localStorage.removeItem("palette"); } catch (e) {}
+          } else {
+            document.documentElement.dataset.palette = current;
+            try { localStorage.setItem("palette", current); } catch (e) {}
+          }
+          markActive();
+        });
+      });
+
+      markActive();
+    })();
+  </script>
+</body>
+</html>

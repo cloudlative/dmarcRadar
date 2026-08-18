@@ -10,6 +10,26 @@ Enterprise DMARC aggregate report analysis platform — ingest reports via manua
 IMAP mailbox polling, store and dedupe them in Postgres, and visualize results across a
 dashboard built almost entirely from donut charts.
 
+## Quick start (Docker)
+
+The fastest way to get a running instance — no local Node/Postgres install required.
+
+```bash
+git clone https://github.com/cloudlative/dmarcRadar.git
+cd dmarcRadar
+cp .env.example .env   # fill in NEXTAUTH_SECRET / MAILBOX_SECRET, e.g. `openssl rand -hex 32`
+
+docker compose up -d
+docker compose exec app npx prisma migrate deploy
+docker compose exec app npm run seed
+```
+
+Open **http://localhost:3000** and sign in with the seeded admin credentials from `.env`
+(`SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`). This pulls the published
+`ghcr.io/cloudlative/dmarcradar:latest` image for both the app and the ingestion worker — see
+[Container images](#container-images) below for what else it tags, and
+[Docker Compose (full stack)](#docker-compose-full-stack) for building from local source instead.
+
 ## Stack
 
 - Next.js 14 (App Router) + TypeScript, Tailwind CSS
@@ -47,10 +67,21 @@ source of truth for the DB password rather than two copies that can drift out of
 
 A static landing page lives in [`docs/`](docs/) and deploys automatically to GitHub Pages via
 [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main` that
-touches `docs/`. Published at **<https://dmarcradar.cloudlative.com>** (custom domain, HTTPS
-enforced) — the underlying `cloudlative.github.io/dmarcRadar/` URL still resolves too, but the
-custom domain is canonical. [`docs/CNAME`](docs/CNAME) records the domain so it's tracked in
-version control alongside the repo's **Settings → Pages → Custom domain** setting.
+touches `docs/`, `README.md`, or the generator script. Published at
+**<https://dmarcradar.cloudlative.com>** (custom domain, HTTPS enforced) — the underlying
+`cloudlative.github.io/dmarcRadar/` URL still resolves too, but the custom domain is canonical.
+[`docs/CNAME`](docs/CNAME) records the domain so it's tracked in version control alongside the
+repo's **Settings → Pages → Custom domain** setting.
+
+`docs/index.html` is the hand-authored landing page; `docs/guide.html` is this README rendered
+to HTML by [`scripts/generate-docs.mjs`](scripts/generate-docs.mjs), styled with the same
+theme/palette system (`docs/assets/site.css`) so it matches the rest of the site. The Pages
+workflow regenerates it on every deploy, so it's always current — to preview a README change
+locally before pushing, run:
+
+```bash
+npm run docs:generate
+```
 
 ## Container images
 
