@@ -6,6 +6,7 @@ import { signOut, useSession } from "next-auth/react";
 import clsx from "clsx";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { PalettePicker } from "@/components/PalettePicker";
 
 const WORKSPACE_LINKS = [
   { href: "/", label: "Dashboard" },
@@ -69,6 +70,7 @@ export function Nav() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <PalettePicker />
           <ThemeToggle />
 
           {session?.user ? (

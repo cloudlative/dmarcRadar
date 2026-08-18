@@ -95,6 +95,77 @@
   --chart-baseline: #383835;
 }
 
+/* Palette: Ember — warm terracotta + amber, for a warmer editorial look */
+:root[data-palette="ember"] {
+  --page: 250 246 240;
+  --surface: 253 250 245;
+  --surface-raised: 255 255 255;
+  --border: 232 220 205;
+  --brand-from: #d9622b;
+  --brand-to: #d9a12b;
+  --brand-ember: #b23a3a;
+  --accent: 217 98 43;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="ember"]:not([data-theme="light"]) {
+    --page: 20 15 12;
+    --surface: 30 23 18;
+    --surface-raised: 38 29 23;
+    --border: 51 40 32;
+    --brand-from: #e57a45;
+    --brand-to: #e0b84a;
+    --brand-ember: #d1584f;
+    --accent: 229 122 69;
+  }
+}
+:root[data-palette="ember"][data-theme="dark"] {
+  --page: 20 15 12;
+  --surface: 30 23 18;
+  --surface-raised: 38 29 23;
+  --border: 51 40 32;
+  --brand-from: #e57a45;
+  --brand-to: #e0b84a;
+  --brand-ember: #d1584f;
+  --accent: 229 122 69;
+}
+
+/* Palette: Slate — monochrome neutrals + a single sharp indigo accent */
+:root[data-palette="slate"] {
+  --page: 246 246 248;
+  --surface: 250 250 251;
+  --surface-raised: 255 255 255;
+  --border: 224 224 229;
+  --ink: 15 15 18;
+  --brand-from: #4f46e5;
+  --brand-to: #6d28d9;
+  --brand-ember: #4338ca;
+  --accent: 79 70 229;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="slate"]:not([data-theme="light"]) {
+    --page: 8 8 10;
+    --surface: 16 16 19;
+    --surface-raised: 22 22 26;
+    --border: 34 34 40;
+    --ink: 245 245 247;
+    --brand-from: #6366f1;
+    --brand-to: #8b5cf6;
+    --brand-ember: #818cf8;
+    --accent: 99 102 241;
+  }
+}
+:root[data-palette="slate"][data-theme="dark"] {
+  --page: 8 8 10;
+  --surface: 16 16 19;
+  --surface-raised: 22 22 26;
+  --border: 34 34 40;
+  --ink: 245 245 247;
+  --brand-from: #6366f1;
+  --brand-to: #8b5cf6;
+  --brand-ember: #818cf8;
+  --accent: 99 102 241;
+}
+
 body {
   background-color: rgb(var(--page));
   color: rgb(var(--ink));

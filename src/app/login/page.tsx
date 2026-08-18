@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { PalettePicker } from "@/components/PalettePicker";
 
 function AnimatedRadarMark() {
   return (
@@ -82,7 +83,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center">
+    <div className="relative flex min-h-[70vh] flex-col items-center justify-center">
+      <div className="absolute right-0 top-0">
+        <PalettePicker />
+      </div>
+
       <AnimatedRadarMark />
       <h1 className="mb-1 mt-4 text-lg font-bold tracking-tight text-ink">dmarcRadar</h1>
       <p className="mb-6 text-sm text-ink-faint">DMARC Reporting, scanned continuously</p>

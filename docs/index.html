@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en">
 <head>
+<script>
+  try {
+    var storedPalette = localStorage.getItem("palette");
+    if (storedPalette) document.documentElement.dataset.palette = storedPalette;
+  } catch (e) {}
+</script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>dmarcRadar — DMARC Reporting, scanned continuously</title>
@@ -27,7 +33,7 @@
     --ember: #ff7a45;
   }
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-palette="ember"]):not([data-palette="slate"]) {
       color-scheme: dark;
       --page: #0d0d0d;
       --surface: #1a1a19;
@@ -38,6 +44,57 @@
       --ink-faint: #898781;
       --brand-from: #3987e5;
       --brand-to: #199e70;
+    }
+  }
+
+  /* Palette: Ember — warm terracotta + amber */
+  :root[data-palette="ember"] {
+    color-scheme: light;
+    --page: #faf6f0;
+    --surface: #fdfaf5;
+    --surface-raised: #ffffff;
+    --border: #e8dccd;
+    --brand-from: #d9622b;
+    --brand-to: #d9a12b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette="ember"] {
+      color-scheme: dark;
+      --page: #14100c;
+      --surface: #1e1712;
+      --surface-raised: #261d17;
+      --border: #332820;
+      --ink: #ffffff;
+      --ink-muted: #cbbfb2;
+      --ink-faint: #96887a;
+      --brand-from: #e57a45;
+      --brand-to: #e0b84a;
+    }
+  }
+
+  /* Palette: Slate — monochrome neutrals + a single sharp indigo accent */
+  :root[data-palette="slate"] {
+    color-scheme: light;
+    --page: #f6f6f8;
+    --surface: #fafafb;
+    --surface-raised: #ffffff;
+    --border: #e0e0e5;
+    --ink: #0f0f12;
+    --brand-from: #4f46e5;
+    --brand-to: #6d28d9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette="slate"] {
+      color-scheme: dark;
+      --page: #08080a;
+      --surface: #101013;
+      --surface-raised: #16161a;
+      --border: #222228;
+      --ink: #f5f5f7;
+      --ink-muted: #b8b8c2;
+      --ink-faint: #85858f;
+      --brand-from: #6366f1;
+      --brand-to: #8b5cf6;
     }
   }
   * { box-sizing: border-box; }
@@ -128,6 +185,33 @@
   }
   footer a { color: var(--ink-muted); }
   .credit { margin-top: 20px; display: flex; justify-content: center; }
+  .theme-picker {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 28px;
+  }
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px 5px 6px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-raised);
+    color: var(--ink-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .swatch:hover { color: var(--ink); }
+  .swatch[data-active="true"] { border-color: var(--ink-faint); color: var(--ink); }
+  .swatch .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    margin: 0;
+  }
 </style>
 </head>
 <body>
@@ -138,6 +222,17 @@
     <div class="cta">
       <a class="btn btn-primary" href="https://github.com/cloudlative/dmarcRadar">View on GitHub</a>
       <a class="btn btn-secondary" href="https://github.com/cloudlative/dmarcRadar/pkgs/container/dmarcradar">Get the Docker image</a>
+    </div>
+    <div class="theme-picker" role="group" aria-label="Color theme">
+      <button class="swatch" data-palette-choice="signal">
+        <span class="dot" style="background-image:linear-gradient(135deg,#2a86e0,#17a878)"></span>Signal
+      </button>
+      <button class="swatch" data-palette-choice="ember">
+        <span class="dot" style="background-image:linear-gradient(135deg,#d9622b,#d9a12b)"></span>Ember
+      </button>
+      <button class="swatch" data-palette-choice="slate">
+        <span class="dot" style="background-image:linear-gradient(135deg,#4f46e5,#6d28d9)"></span>Slate
+      </button>
     </div>
   </header>
 
@@ -186,5 +281,33 @@
     </div>
   </footer>
   <script src="https://platform.linkedin.com/badges/js/profile.js" async defer type="text/javascript"></script>
+  <script>
+    (function () {
+      var swatches = document.querySelectorAll("[data-palette-choice]");
+      var current = document.documentElement.dataset.palette || "signal";
+
+      function markActive() {
+        swatches.forEach(function (btn) {
+          btn.dataset.active = String(btn.dataset.paletteChoice === current);
+        });
+      }
+
+      swatches.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          current = btn.dataset.paletteChoice;
+          if (current === "signal") {
+            delete document.documentElement.dataset.palette;
+            try { localStorage.removeItem("palette"); } catch (e) {}
+          } else {
+            document.documentElement.dataset.palette = current;
+            try { localStorage.setItem("palette", current); } catch (e) {}
+          }
+          markActive();
+        });
+      });
+
+      markActive();
+    })();
+  </script>
 </body>
 </html>

@@ -18,6 +18,8 @@ const THEME_INIT_SCRIPT = `
     var stored = localStorage.getItem('theme');
     var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     document.documentElement.dataset.theme = theme;
+    var palette = localStorage.getItem('palette');
+    if (palette) document.documentElement.dataset.palette = palette;
   } catch (e) {}
 `;
 
