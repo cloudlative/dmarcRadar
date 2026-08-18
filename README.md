@@ -22,7 +22,9 @@ dashboard built almost entirely from donut charts.
 ## Local development
 
 1. Copy `.env.example` to `.env` and fill in `NEXTAUTH_SECRET` / `MAILBOX_SECRET`
-   (`openssl rand -hex 32` for both).
+   (`openssl rand -hex 32` for both). `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` and
+   `DATABASE_URL` can be left as-is for local use — see the comment above them in
+   `.env.example` if you change the DB credentials, since both need to stay in sync.
 2. Start Postgres: `docker compose up -d postgres`
 3. Install deps: `npm install`
 4. Run migrations: `npm run prisma:migrate`
@@ -32,6 +34,14 @@ dashboard built almost entirely from donut charts.
    `npm run worker`
 
 Sign in with the seeded admin credentials from `.env` (`SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`).
+
+All secrets — Postgres credentials, NextAuth secret, the mailbox-password encryption key, the
+seed admin's credentials — live only in `.env` (gitignored). Nothing is hardcoded in
+`docker-compose.yml`, the Dockerfile, or source: the `postgres` service reads its own
+credentials from `.env` via `env_file`, and the `app`/`worker` services derive their
+containerized `DATABASE_URL` from those same `POSTGRES_*` values (pointed at the `postgres`
+service instead of `localhost` — see the comment in `docker-compose.yml`), so there's one
+source of truth for the DB password rather than two copies that can drift out of sync.
 
 ## Container images
 

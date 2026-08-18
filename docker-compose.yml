@@ -2,16 +2,13 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: dmarc
-      POSTGRES_PASSWORD: dmarc
-      POSTGRES_DB: dmarc_reports
+    env_file: .env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dmarc"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -25,6 +22,12 @@ services:
       postgres:
         condition: service_healthy
     env_file: .env
+    # Overrides the .env DATABASE_URL (which points at `localhost`, correct for running the
+    # app outside Docker) with one that points at the `postgres` service by name, built from
+    # the same POSTGRES_USER/PASSWORD/DB credentials — so there's one source of truth for the
+    # DB password, not two copies that can drift out of sync.
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     ports:
       - "3000:3000"
     volumes:
@@ -40,6 +43,8 @@ services:
       postgres:
         condition: service_healthy
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     volumes:
       - reports_storage:/app/storage
 
