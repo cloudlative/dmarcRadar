@@ -2,6 +2,11 @@
   "name": "dmarc-reports-analysis",
   "version": "1.0.0",
   "private": true,
+  "homepage": "https://dmarcradar.cloudlative.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudlative/dmarcRadar.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -47,11 +47,10 @@ source of truth for the DB password rather than two copies that can drift out of
 
 A static landing page lives in [`docs/`](docs/) and deploys automatically to GitHub Pages via
 [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main` that
-touches `docs/`. Currently published at <https://cloudlative.github.io/dmarcRadar/>.
-
-To attach a custom subdomain later: add a `CNAME` file to `docs/` containing just the
-domain (e.g. `www.dmarcradar.com`), point that subdomain's DNS at `cloudlative.github.io`
-via a `CNAME` record, then set it in the repo's **Settings → Pages → Custom domain**.
+touches `docs/`. Published at **<https://dmarcradar.cloudlative.com>** (custom domain, HTTPS
+enforced) — the underlying `cloudlative.github.io/dmarcRadar/` URL still resolves too, but the
+custom domain is canonical. [`docs/CNAME`](docs/CNAME) records the domain so it's tracked in
+version control alongside the repo's **Settings → Pages → Custom domain** setting.
 
 ## Container images
 
