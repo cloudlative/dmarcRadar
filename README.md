@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="branding/logo-icon-128.png" alt="dmarcRadar logo" width="96" />
+  <img src="branding/logo-icon-animated.svg" alt="dmarcRadar logo" width="96" />
 </p>
 
 <h1 align="center">dmarcRadar</h1>
@@ -106,6 +106,9 @@ Logo source and rasterized assets live in [`branding/`](branding/):
 
 - `logo-icon.svg` — master square mark (used for `src/app/icon.svg`, the in-app `Logo`
   component, and favicons), rasterized to `logo-icon-{16,32,48,64,128,192,256,512}.png`
+- `logo-icon-animated.svg` — same mark with the radar sweep animated via SMIL (`<animateTransform>`)
+  instead of CSS, so it keeps spinning when embedded standalone (e.g. this README) where the
+  app's stylesheet isn't loaded. Used at the top of this file.
 - `logo-wordmark-{light,dark}.svg` — icon + wordmark lockup for light/dark backgrounds,
   rasterized at 1x/2x/3x for use in docs, social previews, or a repo card
 

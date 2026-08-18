@@ -6,6 +6,13 @@ import { KpiCard } from "@/components/KpiCard";
 import { DashboardFilters } from "@/components/DashboardFilters";
 import { FullPageSpinner } from "@/components/Spinner";
 
+interface DomainStat {
+  name: string;
+  reportCount: number;
+  volume: number;
+  passRatePct: number;
+}
+
 interface DashboardStats {
   kpis: {
     totalReports: number;
@@ -21,6 +28,7 @@ interface DashboardStats {
   topSourceIps: DonutDatum[];
   reportSource: DonutDatum[];
   topFailingSources: DonutDatum[];
+  domainBreakdown: DomainStat[];
 }
 
 function formatCompact(n: number): string {
@@ -116,6 +124,45 @@ export default function DashboardPage() {
               data={stats.topFailingSources}
               emptyMessage="No failing sources in this period"
             />
+          </div>
+
+          <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-surface">
+            <div className="border-b border-border px-4 py-3">
+              <h2 className="text-sm font-semibold text-ink">Domains</h2>
+              <p className="text-xs text-ink-faint">
+                The actual numbers behind the charts above — one row per domain, for this filter.
+              </p>
+            </div>
+            {stats.domainBreakdown.length === 0 ? (
+              <div className="px-4 py-8 text-center text-sm text-ink-faint">No domains in this period</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-left text-ink-faint">
+                      <th className="px-4 py-2 font-medium">Domain</th>
+                      <th className="px-4 py-2 text-right font-medium">Reports</th>
+                      <th className="px-4 py-2 text-right font-medium">Message volume</th>
+                      <th className="px-4 py-2 text-right font-medium">Pass rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stats.domainBreakdown.map((d) => (
+                      <tr key={d.name} className="border-b border-border last:border-0">
+                        <td className="px-4 py-2 text-ink">{d.name}</td>
+                        <td className="px-4 py-2 text-right tabular-nums text-ink-muted">{d.reportCount}</td>
+                        <td className="px-4 py-2 text-right tabular-nums text-ink">
+                          {formatCompact(d.volume)}
+                        </td>
+                        <td className="px-4 py-2 text-right tabular-nums text-ink-muted">
+                          {d.passRatePct}%
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </>
       )}

@@ -12,6 +12,13 @@ export interface Slice {
   value: number;
 }
 
+export interface DomainStat {
+  name: string;
+  reportCount: number;
+  volume: number;
+  passRatePct: number;
+}
+
 export interface DashboardStats {
   kpis: {
     totalReports: number;
@@ -27,6 +34,10 @@ export interface DashboardStats {
   topSourceIps: Slice[];
   reportSource: Slice[];
   topFailingSources: Slice[];
+  /** Per-domain raw numbers (not capped to top-N/Other like the chart slices) — the actual
+   * underlying data behind "Top domains by volume", for anyone who wants the real table
+   * rather than a chart. */
+  domainBreakdown: DomainStat[];
 }
 
 const MAX_SLICES = 7;
@@ -64,6 +75,7 @@ export interface RawStatsInput {
   sourceIpGroups: Slice[];
   failingSourceIpGroups: Slice[];
   reportSourceGroups: Slice[];
+  domainBreakdown: DomainStat[];
 }
 
 /**
@@ -92,6 +104,7 @@ export function combineDashboardStats(raw: RawStatsInput): DashboardStats {
     topSourceIps: topN(toMap(raw.sourceIpGroups)),
     reportSource: topN(toMap(raw.reportSourceGroups)),
     topFailingSources: topN(toMap(raw.failingSourceIpGroups)),
+    domainBreakdown: raw.domainBreakdown,
   };
 }
 
@@ -150,6 +163,35 @@ async function groupByReportSource(where: Prisma.Sql): Promise<Slice[]> {
   return rows.map((row) => ({ label: mapSourceTypeLabel(row.label), value: Number(row.value) }));
 }
 
+async function getDomainBreakdown(where: Prisma.Sql): Promise<DomainStat[]> {
+  const rows = await prisma.$queryRaw<
+    { name: string; report_count: bigint; volume: bigint | null; pass_volume: bigint | null }[]
+  >(Prisma.sql`
+    SELECT
+      d.name AS name,
+      COUNT(DISTINCT rep.id) AS report_count,
+      COALESCE(SUM(r.count), 0) AS volume,
+      COALESCE(SUM(CASE WHEN r."dkimResult" = 'pass' OR r."spfResult" = 'pass' THEN r.count ELSE 0 END), 0) AS pass_volume
+    FROM "Domain" d
+    JOIN "Report" rep ON rep."domainId" = d.id
+    LEFT JOIN "Record" r ON r."reportId" = rep.id
+    ${where}
+    GROUP BY d.name
+    ORDER BY volume DESC
+  `);
+
+  return rows.map((row) => {
+    const volume = Number(row.volume ?? 0);
+    const passVolume = Number(row.pass_volume ?? 0);
+    return {
+      name: row.name,
+      reportCount: Number(row.report_count),
+      volume,
+      passRatePct: volume > 0 ? Math.round((passVolume / volume) * 1000) / 10 : 0,
+    };
+  });
+}
+
 /**
  * Fetches dashboard metrics with every aggregation pushed down to Postgres (GROUP BY / SUM /
  * COUNT DISTINCT) instead of pulling every matching Report+Record row into Node and reducing
@@ -164,10 +206,19 @@ export async function getDashboardStats(filter: StatsFilter): Promise<DashboardS
     Prisma.sql`((r."dkimResult" <> 'pass' AND r."spfResult" <> 'pass') OR r.disposition <> 'none')`,
   ]);
 
-  const [kpiRows, dispositionGroups, spfGroups, dkimGroups, domainGroups, sourceIpGroups, failingSourceIpGroups, reportSourceGroups] =
-    await Promise.all([
-      prisma.$queryRaw<{ total_reports: bigint; total_volume: bigint | null; pass_volume: bigint | null; distinct_sources: bigint }[]>(
-        Prisma.sql`
+  const [
+    kpiRows,
+    dispositionGroups,
+    spfGroups,
+    dkimGroups,
+    domainGroups,
+    sourceIpGroups,
+    failingSourceIpGroups,
+    reportSourceGroups,
+    domainBreakdown,
+  ] = await Promise.all([
+    prisma.$queryRaw<{ total_reports: bigint; total_volume: bigint | null; pass_volume: bigint | null; distinct_sources: bigint }[]>(
+      Prisma.sql`
           SELECT
             COUNT(DISTINCT rep.id) AS total_reports,
             COALESCE(SUM(r.count), 0) AS total_volume,
@@ -177,15 +228,16 @@ export async function getDashboardStats(filter: StatsFilter): Promise<DashboardS
           LEFT JOIN "Record" r ON r."reportId" = rep.id
           ${where}
         `
-      ),
-      groupByRecordColumn(where, Prisma.sql`r.disposition`),
-      groupByRecordColumn(where, Prisma.sql`r."spfResult"`),
-      groupByRecordColumn(where, Prisma.sql`r."dkimResult"`),
-      groupByDomain(where),
-      groupByRecordColumn(where, Prisma.sql`r."sourceIp"`),
-      groupByRecordColumn(failingWhere, Prisma.sql`r."sourceIp"`),
-      groupByReportSource(where),
-    ]);
+    ),
+    groupByRecordColumn(where, Prisma.sql`r.disposition`),
+    groupByRecordColumn(where, Prisma.sql`r."spfResult"`),
+    groupByRecordColumn(where, Prisma.sql`r."dkimResult"`),
+    groupByDomain(where),
+    groupByRecordColumn(where, Prisma.sql`r."sourceIp"`),
+    groupByRecordColumn(failingWhere, Prisma.sql`r."sourceIp"`),
+    groupByReportSource(where),
+    getDomainBreakdown(where),
+  ]);
 
   const kpiRow = kpiRows[0];
 
@@ -201,5 +253,6 @@ export async function getDashboardStats(filter: StatsFilter): Promise<DashboardS
     sourceIpGroups,
     failingSourceIpGroups,
     reportSourceGroups,
+    domainBreakdown,
   });
 }

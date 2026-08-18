@@ -12,17 +12,20 @@
 
   <rect width="128" height="128" rx="28" fill="url(#bg)"/>
 
-  <path d="M64 64 L64 15 A49 49 0 0 1 104.4 37.7 Z" fill="url(#sweep)"/>
+  <path class="radar-sweep" d="M64 64 L64 15 A49 49 0 0 1 104.4 37.7 Z" fill="url(#sweep)"/>
 
   <circle cx="64" cy="64" r="46" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="2.5"/>
   <circle cx="64" cy="64" r="30" fill="none" stroke="#ffffff" stroke-opacity="0.4" stroke-width="2"/>
   <circle cx="64" cy="64" r="14" fill="none" stroke="#ffffff" stroke-opacity="0.3" stroke-width="1.5"/>
-
   <line x1="64" y1="13" x2="64" y2="115" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1.5"/>
   <line x1="13" y1="64" x2="115" y2="64" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1.5"/>
 
-  <circle cx="64" cy="64" r="5.5" fill="#ffffff"/>
+  <!-- Envelope at the radar's center, standing in for the plain blip dot -->
+  <rect x="51" y="56" width="26" height="18" rx="2.5" fill="none" stroke="#ffffff" stroke-width="3"/>
+  <path d="M52 58 L64 69 L76 58" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <circle cx="87" cy="45" r="10" fill="none" stroke="#ff7a45" stroke-opacity="0.55" stroke-width="2"/>
-  <circle cx="87" cy="45" r="6" fill="#ff7a45"/>
+  <!-- Detected signal: a verified tick instead of a plain dot -->
+  <circle cx="87" cy="45" r="11" fill="none" stroke="#ff7a45" stroke-opacity="0.55" stroke-width="2"/>
+  <circle cx="87" cy="45" r="8" fill="#ff7a45"/>
+  <path d="M83 45 L86 48 L92 41" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

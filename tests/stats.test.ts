@@ -14,6 +14,7 @@ function makeRaw(overrides: Partial<RawStatsInput>): RawStatsInput {
     sourceIpGroups: [],
     failingSourceIpGroups: [],
     reportSourceGroups: [],
+    domainBreakdown: [],
     ...overrides,
   };
 }
@@ -100,5 +101,14 @@ describe("combineDashboardStats", () => {
     expect(stats.dkimResult).toEqual(raw.dkimGroups);
     expect(stats.topDomains).toEqual(raw.domainGroups);
     expect(stats.reportSource).toEqual(raw.reportSourceGroups);
+  });
+
+  it("passes the per-domain breakdown straight through unchanged (no top-N cutoff)", () => {
+    const domainBreakdown = [
+      { name: "example.com", reportCount: 12, volume: 500, passRatePct: 95.5 },
+      { name: "acme.io", reportCount: 3, volume: 40, passRatePct: 100 },
+    ];
+    const stats = combineDashboardStats(makeRaw({ domainBreakdown }));
+    expect(stats.domainBreakdown).toEqual(domainBreakdown);
   });
 });

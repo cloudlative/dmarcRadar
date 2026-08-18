@@ -12,7 +12,17 @@
 
   <rect width="128" height="128" rx="28" fill="url(#bg)"/>
 
-  <path class="radar-sweep" d="M64 64 L64 15 A49 49 0 0 1 104.4 37.7 Z" fill="url(#sweep)"/>
+  <!-- SMIL animation (not CSS) so the rotation survives being embedded standalone, e.g. via
+       an <img> tag in the GitHub README, where our app's stylesheet isn't loaded. -->
+  <path d="M64 64 L64 15 A49 49 0 0 1 104.4 37.7 Z" fill="url(#sweep)">
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from="0 64 64"
+      to="360 64 64"
+      dur="3.5s"
+      repeatCount="indefinite"/>
+  </path>
 
   <circle cx="64" cy="64" r="46" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="2.5"/>
   <circle cx="64" cy="64" r="30" fill="none" stroke="#ffffff" stroke-opacity="0.4" stroke-width="2"/>

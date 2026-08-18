@@ -46,18 +46,21 @@ export function Nav() {
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-surface/80 backdrop-blur supports-[backdrop-filter]:bg-surface/60">
-      <div className="mx-auto flex max-w-7xl items-center gap-6 px-6 py-3">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:gap-6 sm:px-6">
         <Link href="/" className="shrink-0">
           <Logo size={26} withWordmark />
         </Link>
 
-        <nav className="flex flex-1 items-center gap-1">
+        {/* flex-wrap (not overflow-x-auto) so a narrow window wraps extra links onto a second
+            line instead of scrolling — and min-w-0 keeps this from forcing the header wider
+            than the viewport, which is what pushed sign-out off-screen before. */}
+        <nav className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
           {WORKSPACE_LINKS.map((l) => (
             <NavLink key={l.href} href={l.href} label={l.label} active={pathname === l.href} />
           ))}
           {isAdmin ? (
             <>
-              <span className="mx-1 h-4 w-px bg-border" aria-hidden="true" />
+              <span className="mx-1 h-4 w-px shrink-0 bg-border" aria-hidden="true" />
               {ADMIN_LINKS.map((l) => (
                 <NavLink key={l.href} href={l.href} label={l.label} active={pathname === l.href} />
               ))}
@@ -65,21 +68,23 @@ export function Nav() {
           ) : null}
         </nav>
 
-        <ThemeToggle />
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <ThemeToggle />
 
-        {session?.user ? (
-          <div className="flex items-center gap-3 text-sm text-ink-muted">
-            <Link href="/profile" className="hover:underline">
-              {session.user.name} <span className="text-ink-faint">({session.user.role})</span>
-            </Link>
-            <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-raised"
-            >
-              Sign out
-            </button>
-          </div>
-        ) : null}
+          {session?.user ? (
+            <div className="flex items-center gap-3 text-sm text-ink-muted">
+              <Link href="/profile" className="hidden hover:underline sm:inline">
+                {session.user.name} <span className="text-ink-faint">({session.user.role})</span>
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-raised"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
     </header>
   );

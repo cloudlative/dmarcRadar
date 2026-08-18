@@ -28,9 +28,25 @@ function AnimatedRadarMark() {
       <circle cx="64" cy="64" r="14" fill="none" stroke="#ffffff" strokeOpacity="0.3" strokeWidth="1.5" />
       <line x1="64" y1="13" x2="64" y2="115" stroke="#ffffff" strokeOpacity="0.22" strokeWidth="1.5" />
       <line x1="13" y1="64" x2="115" y2="64" stroke="#ffffff" strokeOpacity="0.22" strokeWidth="1.5" />
-      <circle cx="64" cy="64" r="5.5" fill="#ffffff" />
-      <circle cx="87" cy="45" r="10" fill="none" stroke="var(--brand-ember)" strokeOpacity="0.55" strokeWidth="2" />
-      <circle cx="87" cy="45" r="6" fill="var(--brand-ember)" />
+      <rect x="51" y="56" width="26" height="18" rx="2.5" fill="none" stroke="#ffffff" strokeWidth="3" />
+      <path
+        d="M52 58 L64 69 L76 58"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="87" cy="45" r="11" fill="none" stroke="var(--brand-ember)" strokeOpacity="0.55" strokeWidth="2" />
+      <circle cx="87" cy="45" r="8" fill="var(--brand-ember)" />
+      <path
+        d="M83 45 L86 48 L92 41"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -59,8 +75,10 @@ export default function LoginPage() {
       setError("Invalid email or password");
       return;
     }
-    router.push("/");
-    router.refresh();
+    // A full navigation, not router.push(), so the root layout's server-rendered session
+    // check (which decides whether <Nav> shows) actually re-runs — router.push() reuses the
+    // already-rendered layout, so the header stayed missing until a manual refresh.
+    window.location.assign("/");
   }
 
   return (
