@@ -125,6 +125,18 @@ export default function LoginPage() {
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
+
+      <p className="mt-6 text-xs text-ink-faint">
+        Built by{" "}
+        <a
+          href="https://pk.linkedin.com/in/aasifrafiq"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline"
+        >
+          Muhammad Asif
+        </a>
+      </p>
     </div>
   );
 }

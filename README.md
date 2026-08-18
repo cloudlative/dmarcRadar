@@ -130,3 +130,7 @@ Regenerate the PNGs after editing an SVG source with:
 npm install --no-save sharp
 node scripts/generate-logo-assets.mjs
 ```
+
+## Author
+
+Built by [Muhammad Asif](https://pk.linkedin.com/in/aasifrafiq).
