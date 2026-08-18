@@ -13,6 +13,7 @@ interface Mailbox {
   folder: string;
   pollIntervalMinutes: number;
   lastPolledAt: string | null;
+  lastPollError: string | null;
   enabled: boolean;
 }
 
@@ -222,10 +223,12 @@ export default function MailboxSettingsPage() {
         reportsDuplicate: number;
         errors: number;
         rescannedFromStart: boolean;
+        truncated: boolean;
       };
       const parts = [`${s.reportsCreated} new report${s.reportsCreated === 1 ? "" : "s"}`];
       if (s.errors > 0) parts.push(`${s.errors} error${s.errors === 1 ? "" : "s"}`);
-      if (s.rescannedFromStart) parts.push("full history scanned");
+      if (s.rescannedFromStart) parts.push("scanning full history");
+      if (s.truncated) parts.push("more messages left — poll again to continue");
       setRowResults((prev) => ({ ...prev, [id]: parts.join(" · ") }));
       load();
     } finally {
@@ -247,14 +250,19 @@ export default function MailboxSettingsPage() {
         setPollResult(data.error ?? "Poll failed");
         return;
       }
-      const summaries: { reportsCreated: number; rescannedFromStart: boolean }[] = data.summaries ?? [];
+      const summaries: { reportsCreated: number; rescannedFromStart: boolean; truncated: boolean }[] =
+        data.summaries ?? [];
       const total = summaries.reduce((acc, s) => acc + s.reportsCreated, 0);
       const anyFullScan = summaries.some((s) => s.rescannedFromStart);
+      const anyTruncated = summaries.some((s) => s.truncated);
       const fullScanNote = anyFullScan
-        ? " (first poll for at least one mailbox — its entire folder history was scanned, including already-read mail.)"
+        ? " (first poll for at least one mailbox — scanning its folder history, including already-read mail.)"
+        : "";
+      const truncatedNote = anyTruncated
+        ? " Large backlog on at least one mailbox — poll again (or wait for the next scheduled poll) to continue."
         : "";
       setPollResult(
-        `Poll complete: ${total} new report(s) ingested across ${summaries.length} mailbox(es).${fullScanNote}`
+        `Poll complete: ${total} new report(s) ingested across ${summaries.length} mailbox(es).${fullScanNote}${truncatedNote}`
       );
       load();
     } finally {
@@ -320,6 +328,11 @@ export default function MailboxSettingsPage() {
                 <td className="px-4 py-2 text-ink-muted">{mb.pollIntervalMinutes}m</td>
                 <td className="px-4 py-2 text-ink-muted">
                   {mb.lastPolledAt ? new Date(mb.lastPolledAt).toLocaleString() : "Never"}
+                  {mb.lastPollError ? (
+                    <div className="mt-0.5 text-xs text-[var(--status-critical)]" title={mb.lastPollError}>
+                      Failed: {mb.lastPollError}
+                    </div>
+                  ) : null}
                 </td>
                 <td className="px-4 py-2">
                   <button onClick={() => toggleEnabled(mb)} className="text-xs text-ink-muted hover:underline">

@@ -62,6 +62,10 @@ model MailboxConfig {
   folder             String   @default("INBOX")
   pollIntervalMinutes Int     @default(15)
   lastPolledAt       DateTime?
+  // Set on every poll attempt, success or failure, and cleared on success — so a failed poll
+  // (bad credentials, unreachable host, timeout) is visible after a page refresh instead of
+  // only in a toast that vanishes the moment the tab is closed.
+  lastPollError      String?
   // Ingestion progress tracked by IMAP UID rather than the \Seen flag — \Seen is shared
   // mailbox state that a human or another mail client can silently change, causing reports
   // to be skipped. uidValidity resets lastUid to re-scan from the start if the mailbox is
