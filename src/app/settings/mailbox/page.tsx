@@ -130,6 +130,7 @@ export default function MailboxSettingsPage() {
   const [editing, setEditing] = useState<Mailbox | null>(null);
   const [editForm, setEditForm] = useState<EditForm>(initialForm);
   const [editError, setEditError] = useState<string | null>(null);
+  const [rescanningIds, setRescanningIds] = useState<Set<string>>(new Set());
   const { confirm, dialog } = useConfirm();
 
   const load = () =>
@@ -240,6 +241,27 @@ export default function MailboxSettingsPage() {
     }
   }
 
+  async function rescanFromStart(mb: Mailbox) {
+    if (
+      !(await confirm(
+        `Rescan "${mb.name}" from the start of ${mb.folder}? This re-processes every message in the folder, including ones already seen — use this after deleting a domain's data if you want its reports re-ingested.`,
+        "Rescan"
+      ))
+    )
+      return;
+    setRescanningIds((prev) => new Set(prev).add(mb.id));
+    try {
+      await fetch(`/api/settings/mailbox/${mb.id}/rescan`, { method: "POST" });
+      await pollOne(mb.id);
+    } finally {
+      setRescanningIds((prev) => {
+        const next = new Set(prev);
+        next.delete(mb.id);
+        return next;
+      });
+    }
+  }
+
   async function pollNow() {
     setPolling(true);
     setPollResult(null);
@@ -343,10 +365,18 @@ export default function MailboxSettingsPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => pollOne(mb.id)}
-                      disabled={pollingIds.has(mb.id)}
+                      disabled={pollingIds.has(mb.id) || rescanningIds.has(mb.id)}
                       className="rounded-md border border-border px-2 py-1 text-xs text-ink hover:bg-surface-raised disabled:opacity-60"
                     >
                       {pollingIds.has(mb.id) ? "Polling…" : "Poll"}
+                    </button>
+                    <button
+                      onClick={() => rescanFromStart(mb)}
+                      disabled={pollingIds.has(mb.id) || rescanningIds.has(mb.id)}
+                      title="Reset the IMAP checkpoint and re-process every message from the start of the folder, including ones already seen"
+                      className="rounded-md border border-border px-2 py-1 text-xs text-ink-muted hover:bg-surface-raised disabled:opacity-60"
+                    >
+                      {rescanningIds.has(mb.id) ? "Rescanning…" : "Rescan"}
                     </button>
                     {rowResults[mb.id] ? (
                       <span className="text-xs text-ink-faint">{rowResults[mb.id]}</span>
