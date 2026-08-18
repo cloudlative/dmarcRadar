@@ -35,7 +35,9 @@ export async function GET() {
 
   const mailboxes = await prisma.mailboxConfig.findMany({ orderBy: { createdAt: "asc" } });
   return NextResponse.json({
-    mailboxes: mailboxes.map(({ passwordEncrypted, ...rest }) => rest),
+    // uidValidity is a BigInt (JSON.stringify can't serialize those) and is purely internal
+    // poll-tracking state the frontend never reads, so it's dropped here rather than converted.
+    mailboxes: mailboxes.map(({ passwordEncrypted, uidValidity, ...rest }) => rest),
   });
 }
 
@@ -59,7 +61,7 @@ export async function POST(request: Request) {
     const mailbox = await prisma.mailboxConfig.create({
       data: { ...rest, passwordEncrypted: encryptSecret(password) },
     });
-    const { passwordEncrypted, ...safeMailbox } = mailbox;
+    const { passwordEncrypted, uidValidity, ...safeMailbox } = mailbox;
     return NextResponse.json({ mailbox: safeMailbox }, { status: 201 });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {

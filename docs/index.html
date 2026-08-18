@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>dmarcRadar — DMARC Reporting, scanned continuously</title>
+<meta name="description" content="Enterprise DMARC aggregate report analysis — ingest via upload or IMAP, dedupe automatically, and visualize authentication health across a donut-chart dashboard." />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --surface-raised: #ffffff;
+    --border: #e1e0d9;
+    --ink: #0b0b0b;
+    --ink-muted: #52514e;
+    --ink-faint: #898781;
+    --brand-from: #2a86e0;
+    --brand-to: #17a878;
+    --ember: #ff7a45;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-raised: #222220;
+      --border: #2c2c2a;
+      --ink: #ffffff;
+      --ink-muted: #c3c2b7;
+      --ink-faint: #898781;
+      --brand-from: #3987e5;
+      --brand-to: #199e70;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+  header.hero {
+    text-align: center;
+    padding: 96px 24px 64px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--brand-from) 6%, var(--page)), var(--page));
+  }
+  .logo { width: 96px; height: 96px; margin-bottom: 24px; }
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+  .tagline { color: var(--ink-faint); font-size: 1.125rem; margin: 0 0 32px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: filter 0.15s ease;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn-primary {
+    background-image: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+    color: #fff;
+  }
+  .btn-secondary {
+    background: var(--surface-raised);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  section { padding: 56px 0; }
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .card h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .card p { margin: 0; color: var(--ink-muted); font-size: 0.9rem; }
+  .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    margin-right: 8px;
+    background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+  }
+  h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 24px; }
+  .stack { color: var(--ink-muted); font-size: 0.95rem; }
+  code {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.85em;
+  }
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0 64px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 0.875rem;
+  }
+  footer a { color: var(--ink-muted); }
+</style>
+</head>
+<body>
+  <header class="hero">
+    <img class="logo" src="assets/logo-icon-animated.svg" alt="dmarcRadar" />
+    <h1>dmarcRadar</h1>
+    <p class="tagline">DMARC Reporting, scanned continuously.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/cloudlative/dmarcRadar">View on GitHub</a>
+      <a class="btn btn-secondary" href="https://github.com/cloudlative/dmarcRadar/pkgs/container/dmarcradar">Get the Docker image</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <section>
+      <h2>What it does</h2>
+      <div class="features">
+        <div class="card">
+          <h3><span class="dot"></span>Ingest reports automatically</h3>
+          <p>Upload DMARC aggregate reports manually, or connect an IMAP mailbox and let a background worker poll it on a schedule.</p>
+        </div>
+        <div class="card">
+          <h3><span class="dot"></span>Dedupe by design</h3>
+          <p>Reports are keyed on report ID, org, and domain — re-uploading or re-polling the same report is always a no-op.</p>
+        </div>
+        <div class="card">
+          <h3><span class="dot"></span>A dashboard built on donuts</h3>
+          <p>Pass/fail, disposition, SPF and DKIM results, top domains and source IPs — every metric gets its own chart, plus a real data table underneath.</p>
+        </div>
+        <div class="card">
+          <h3><span class="dot"></span>Role-based access</h3>
+          <p>Admins configure ingestion, domains, and users. Viewers get full read access to every report and every number behind the charts.</p>
+        </div>
+        <div class="card">
+          <h3><span class="dot"></span>Self-hosted, one image</h3>
+          <p>A single Docker image serves both the app and the ingestion worker — <code>docker compose up</code> and you're running.</p>
+        </div>
+        <div class="card">
+          <h3><span class="dot"></span>Built on a modern stack</h3>
+          <p>Next.js, PostgreSQL, Prisma, NextAuth — nothing exotic, easy to self-host and extend.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>
+      <a href="https://github.com/cloudlative/dmarcRadar">github.com/cloudlative/dmarcRadar</a>
+      · <a href="https://github.com/cloudlative/dmarcRadar#readme">Documentation</a>
+    </p>
+  </footer>
+</body>
+</html>

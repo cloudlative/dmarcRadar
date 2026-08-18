@@ -45,7 +45,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       where: { id: params.id },
       data: { ...rest, ...(password ? { passwordEncrypted: encryptSecret(password) } : {}) },
     });
-    const { passwordEncrypted, ...safeMailbox } = mailbox;
+    // uidValidity is a BigInt (not JSON-serializable) and purely internal poll-tracking state.
+    const { passwordEncrypted, uidValidity, ...safeMailbox } = mailbox;
     return NextResponse.json({ mailbox: safeMailbox });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {

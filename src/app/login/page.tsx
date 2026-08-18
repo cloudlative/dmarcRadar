@@ -85,7 +85,7 @@ export default function LoginPage() {
     <div className="flex min-h-[70vh] flex-col items-center justify-center">
       <AnimatedRadarMark />
       <h1 className="mb-1 mt-4 text-lg font-bold tracking-tight text-ink">dmarcRadar</h1>
-      <p className="mb-6 text-sm text-ink-faint">Email authentication, scanned continuously</p>
+      <p className="mb-6 text-sm text-ink-faint">DMARC Reporting, scanned continuously</p>
 
       <form
         onSubmit={handleSubmit}
