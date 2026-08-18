@@ -33,7 +33,8 @@ services:
   worker:
     build:
       context: .
-      dockerfile: Dockerfile.worker
+      dockerfile: Dockerfile
+    command: ["npx", "tsx", "worker/poller.ts"]
     restart: unless-stopped
     depends_on:
       postgres:

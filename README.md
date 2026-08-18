@@ -35,11 +35,14 @@ Sign in with the seeded admin credentials from `.env` (`SEED_ADMIN_EMAIL` / `SEE
 
 ## Container images
 
-Every push to `main` builds and publishes two images to GitHub Container Registry via
+Every push to `main` builds and publishes one image to GitHub Container Registry via
 [`.github/workflows/docker-build.yml`](.github/workflows/docker-build.yml):
 
-- `ghcr.io/cloudlative/dmarcradar` — the app
-- `ghcr.io/cloudlative/dmarcradar-worker` — the ingestion worker
+- `ghcr.io/cloudlative/dmarcradar`
+
+The same image serves both roles in `docker-compose.yml` — the `app` service runs it with
+the default command (`npm start`); the `worker` service runs the identical image with its
+command overridden to `npx tsx worker/poller.ts`. One image, one build, two roles.
 
 Version tags (`vX.Y.Z`) also get semver-tagged builds; every build is additionally tagged
 with its short commit SHA.
@@ -47,13 +50,12 @@ with its short commit SHA.
 **One-time setup**: this repo is private, and GitHub Container Registry packages inherit
 their parent repo's visibility. The `GITHUB_TOKEN` the workflow runs with cannot change a
 package's visibility — that requires either the web UI or a personal access token with
-package scopes. After the first successful workflow run, make each package public once:
+package scopes. After the first successful workflow run, make the package public once:
 
 ```bash
 # Requires a token with read:packages/write:packages/delete:packages scopes:
 #   gh auth refresh -h github.com -s read:packages,write:packages,delete:packages
 gh api -X PATCH /orgs/cloudlative/packages/container/dmarcradar/visibility -f visibility=public
-gh api -X PATCH /orgs/cloudlative/packages/container/dmarcradar-worker/visibility -f visibility=public
 ```
 
 Or via the UI: the repo's **Packages** sidebar → package → **Package settings** → **Change visibility** → **Public**.
