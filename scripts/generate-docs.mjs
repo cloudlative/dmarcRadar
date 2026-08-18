@@ -29,6 +29,13 @@ function rewriteHref(href) {
   return `${REPO_URL}/${isDir ? "tree" : "blob"}/main/${cleanPath}`;
 }
 
+// Screenshots live under docs/assets/... so they resolve on GitHub (repo-root-relative) — on
+// the docs page itself (served with docs/ as the web root) that leading "docs/" has to go.
+function rewriteImageSrc(src) {
+  if (/^(https?:)/.test(src)) return src;
+  return src.startsWith("docs/") ? src.slice("docs/".length) : src;
+}
+
 marked.use({
   renderer: {
     heading({ tokens, depth }) {
@@ -41,6 +48,10 @@ marked.use({
       const resolvedHref = rewriteHref(href);
       const titleAttr = title ? ` title="${title}"` : "";
       return `<a href="${resolvedHref}"${titleAttr}>${text}</a>`;
+    },
+    image({ href, title, text }) {
+      const titleAttr = title ? ` title="${title}"` : "";
+      return `<img src="${rewriteImageSrc(href)}" alt="${text}"${titleAttr} loading="lazy" />`;
     },
   },
 });

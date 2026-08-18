@@ -30,6 +30,26 @@ Open **http://localhost:3000** and sign in with the seeded admin credentials fro
 [Container images](#container-images) below for what else it tags, and
 [Docker Compose (full stack)](#docker-compose-full-stack) for building from local source instead.
 
+## Screenshots
+
+**Dashboard** — pass/fail, disposition, SPF/DKIM, top domains and sources, all as donut charts
+with a real data table underneath.
+
+![Dashboard](docs/assets/screenshots/dashboard.png)
+
+**Reports** — every ingested report, filterable by domain.
+
+![Reports list](docs/assets/screenshots/reports.png)
+
+**Ingestion settings** — configure IMAP mailboxes, trigger a manual poll, or rescan a mailbox
+from the start.
+
+![Ingestion settings](docs/assets/screenshots/ingestion.png)
+
+**Sign in** — with whichever color theme you've picked.
+
+![Login page](docs/assets/screenshots/login.png)
+
 ## Stack
 
 - Next.js 14 (App Router) + TypeScript, Tailwind CSS

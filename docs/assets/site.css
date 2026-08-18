@@ -235,7 +235,14 @@ footer a { color: var(--ink-muted); }
 .prose li > p { margin: 0; display: inline; }
 .prose a { color: var(--brand-to); }
 .prose strong { color: var(--ink); }
-.prose img { max-width: 100%; border-radius: 12px; }
+.prose img {
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  margin: 4px 0 18px;
+  display: block;
+}
 .prose blockquote {
   margin: 0 0 14px;
   padding: 8px 16px;

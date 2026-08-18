@@ -54,6 +54,17 @@ docker compose exec app npm run seed
 <code>ghcr.io/cloudlative/dmarcradar:latest</code> image for both the app and the ingestion worker — see
 <a href="#container-images">Container images</a> below for what else it tags, and
 <a href="#docker-compose-full-stack">Docker Compose (full stack)</a> for building from local source instead.</p>
+<h2 id="screenshots">Screenshots</h2>
+<p><strong>Dashboard</strong> — pass/fail, disposition, SPF/DKIM, top domains and sources, all as donut charts
+with a real data table underneath.</p>
+<p><img src="assets/screenshots/dashboard.png" alt="Dashboard" loading="lazy" /></p>
+<p><strong>Reports</strong> — every ingested report, filterable by domain.</p>
+<p><img src="assets/screenshots/reports.png" alt="Reports list" loading="lazy" /></p>
+<p><strong>Ingestion settings</strong> — configure IMAP mailboxes, trigger a manual poll, or rescan a mailbox
+from the start.</p>
+<p><img src="assets/screenshots/ingestion.png" alt="Ingestion settings" loading="lazy" /></p>
+<p><strong>Sign in</strong> — with whichever color theme you&#39;ve picked.</p>
+<p><img src="assets/screenshots/login.png" alt="Login page" loading="lazy" /></p>
 <h2 id="stack">Stack</h2>
 <ul>
 <li>Next.js 14 (App Router) + TypeScript, Tailwind CSS</li>
