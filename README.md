@@ -50,6 +50,21 @@ from the start.
 
 ![Login page](docs/assets/screenshots/login.png)
 
+### Dark theme
+
+The same four screens with the dark theme and the default Signal color palette selected. A
+theme picker (top-right of the app nav, and on the login page) also offers two more palettes —
+Ember (warm terracotta/amber) and Slate (monochrome + indigo) — each with its own light and dark
+variant.
+
+![Dashboard, dark theme](docs/assets/screenshots/dashboard-dark.png)
+
+![Reports list, dark theme](docs/assets/screenshots/reports-dark.png)
+
+![Ingestion settings, dark theme](docs/assets/screenshots/ingestion-dark.png)
+
+![Login page, dark theme](docs/assets/screenshots/login-dark.png)
+
 ## Stack
 
 - Next.js 14 (App Router) + TypeScript, Tailwind CSS
