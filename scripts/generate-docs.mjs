@@ -116,6 +116,44 @@ ${html}
     <p><em>Generated from the project README — run \`npm run docs:generate\` to refresh after editing it.</em></p>
   </footer>
 
+  <div class="lightbox" id="lightbox" hidden>
+    <button class="lightbox-close" aria-label="Close" type="button">&times;</button>
+    <img id="lightbox-img" src="" alt="" />
+  </div>
+
+  <script>
+    (function () {
+      var overlay = document.getElementById("lightbox");
+      var lightboxImg = document.getElementById("lightbox-img");
+      var closeBtn = overlay.querySelector(".lightbox-close");
+
+      function open(img) {
+        lightboxImg.src = img.currentSrc || img.src;
+        lightboxImg.alt = img.alt;
+        overlay.hidden = false;
+      }
+      function close() {
+        overlay.hidden = true;
+        lightboxImg.src = "";
+      }
+
+      document.querySelectorAll(".prose img").forEach(function (img) {
+        img.addEventListener("click", function () {
+          open(img);
+        });
+      });
+
+      // Close on a click anywhere that isn't the enlarged image itself (the backdrop or the
+      // close button) — clicking the image while zoomed in does nothing.
+      overlay.addEventListener("click", function (e) {
+        if (e.target !== lightboxImg) close();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !overlay.hidden) close();
+      });
+    })();
+  </script>
+
   <script>
     (function () {
       var swatches = document.querySelectorAll("[data-palette-choice]");
