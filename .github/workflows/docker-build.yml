@@ -34,12 +34,16 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/dmarcradar
+          # Every push to main updates :latest (docker-compose.yml pulls exactly this tag).
+          # flavor.latest=false turns off metadata-action's own default-branch heuristic so it
+          # doesn't also emit an implicit, unconditioned latest tag alongside this explicit one.
           tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=sha,format=short
           flavor: |
-            latest=${{ github.ref == 'refs/heads/main' }}
+            latest=false
 
       # One image serves both roles: the app runs it with the default CMD (`npm start`);
       # the worker runs the same image with its command overridden (see docker-compose.yml).

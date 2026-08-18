@@ -58,19 +58,19 @@ via a `CNAME` record, then set it in the repo's **Settings → Pages → Custom 
 Every push to `main` builds and publishes one image to GitHub Container Registry via
 [`.github/workflows/docker-build.yml`](.github/workflows/docker-build.yml):
 
-- `ghcr.io/cloudlative/dmarcradar`
+- `ghcr.io/cloudlative/dmarcradar:latest` — always the most recent `main` build
+- `ghcr.io/cloudlative/dmarcradar:<short-sha>` — every build, pinned to its commit
+- `ghcr.io/cloudlative/dmarcradar:vX.Y.Z` — semver-tagged builds from version tags
 
-The same image serves both roles in `docker-compose.yml` — the `app` service runs it with
-the default command (`npm start`); the `worker` service runs the identical image with its
-command overridden to `npx tsx worker/poller.ts`. One image, one build, two roles.
+The same image serves both roles in `docker-compose.yml`, which references it via `image:`
+(pulled for `docker compose up`) — the `app` service runs it with the default command
+(`npm start`); the `worker` service runs the identical image with its command overridden to
+`npx tsx worker/poller.ts`. One image, one build, two roles.
 
-Version tags (`vX.Y.Z`) also get semver-tagged builds; every build is additionally tagged
-with its short commit SHA.
-
-**One-time setup**: this repo is private, and GitHub Container Registry packages inherit
-their parent repo's visibility. The `GITHUB_TOKEN` the workflow runs with cannot change a
-package's visibility — that requires either the web UI or a personal access token with
-package scopes. After the first successful workflow run, make the package public once:
+**One-time setup**: GitHub Container Registry packages inherit their parent repo's visibility
+*at the time they're first published*, independent of the repo's visibility afterwards. The
+`GITHUB_TOKEN` the workflow runs with cannot change a package's visibility — that requires
+either the web UI or a personal access token with package scopes:
 
 ```bash
 # Requires a token with read:packages/write:packages/delete:packages scopes:
@@ -84,10 +84,13 @@ This only needs to be done once — it persists across future builds.
 ## Docker Compose (full stack)
 
 ```bash
-docker compose up -d --build
+docker compose up -d
 docker compose exec app npx prisma migrate deploy
 docker compose exec app npm run seed
 ```
+
+This pulls `ghcr.io/cloudlative/dmarcradar:latest` for the `app` and `worker` services. To
+build from local source instead (e.g. testing an unpushed change), use `docker compose up -d --build`.
 
 This starts Postgres, the Next.js app, and the ingestion worker together.
 

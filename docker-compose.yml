@@ -13,7 +13,13 @@ services:
       timeout: 5s
       retries: 10
 
+  # image: pulls the CI-published build (ghcr.io/cloudlative/dmarcradar:latest, kept current by
+  # .github/workflows/docker-build.yml on every push to main) for `docker compose up`. build: is
+  # also kept so `docker compose build` still works for local development — it builds from this
+  # same Dockerfile and tags the result with the `image:` name above, so a local build stands in
+  # for the published one until you push again.
   app:
+    image: ghcr.io/cloudlative/dmarcradar:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -34,6 +40,7 @@ services:
       - reports_storage:/app/storage
 
   worker:
+    image: ghcr.io/cloudlative/dmarcradar:latest
     build:
       context: .
       dockerfile: Dockerfile
