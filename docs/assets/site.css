@@ -189,7 +189,6 @@ footer {
   font-size: 0.875rem;
 }
 footer a { color: var(--ink-muted); }
-.credit { margin-top: 20px; display: flex; justify-content: center; }
 .theme-picker {
   display: flex;
   gap: 8px;
